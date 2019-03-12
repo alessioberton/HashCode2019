@@ -12,78 +12,66 @@ class LogicaAccorpamento {
 
     //TODO A: Per arrivare a fare qualche punto in più, è necessario fare un ulteriore step. Riesci a trovarlo ??
 
-
     fun creaListaImmaginiVerticale(imageList: MutableList<Immagine>): MutableList<Immagine> {
         val verticalArray: MutableList<Immagine> = mutableListOf()
-        imageList.sortBy { it.numeroTag }
         imageList.forEach {
             if (it.verticale == true) {
                 verticalArray.add(it)
             }
         }
-        return verticalArray.reversed().toMutableList()
+        verticalArray.sortBy { it.numeroTag }
+        return verticalArray.toMutableList()
+        // return verticalArray.reversed().toMutableList()
     }
 
     fun miglioreCoppiaPossibile(imageVerticalList: MutableList<Immagine>): MutableList<Immagine> {
         val newImageListFromVertical: MutableList<Immagine> = mutableListOf()
         while (imageVerticalList.size > 0) {
             var k = imageVerticalList.size - 1
-            var sonoEntrato = false
             while (k > 1 && imageVerticalList.size > 1 && trovaStessiElementi(imageVerticalList[0].listaTag!!, imageVerticalList[k].listaTag!!) > 0) {
                 k--
-                sonoEntrato = true
             }
-            when {
-                !sonoEntrato -> {
-                    val imageTmp = Immagine()
-                    imageTmp.id = accorpaIdImmaginiVerticali(imageVerticalList[0].id!!, imageVerticalList[k].id!!)
-                    imageTmp.verticale = false
-                    imageTmp.listaTag =
-                        accorpaTagImmaginiVerticali(imageVerticalList[0].listaTag!!, imageVerticalList[k].listaTag!!)
-                    imageTmp.numeroTag = imageTmp.listaTag!!.size
-                    imageVerticalList.remove(imageVerticalList[k])
-                    imageVerticalList.remove(imageVerticalList[0])
-                    newImageListFromVertical.add(imageTmp)
-                }
-                sonoEntrato -> {
-                    val imageTmp = Immagine()
-                    imageTmp.id = accorpaIdImmaginiVerticali(imageVerticalList[0].id!!, imageVerticalList[k].id!!)
-                    imageTmp.verticale = false
-                    imageTmp.listaTag =
-                        accorpaTagImmaginiVerticali(imageVerticalList[0].listaTag!!, imageVerticalList[k].listaTag!!)
-                    imageTmp.numeroTag = imageTmp.listaTag!!.size
-                    imageVerticalList.remove(imageVerticalList[k])
-                    imageVerticalList.remove(imageVerticalList[0])
-                    newImageListFromVertical.add(imageTmp)
-                }
-            }
+
+            val imageTmp = Immagine()
+            imageTmp.id = accorpaIdImmaginiVerticali(imageVerticalList[0].id!!, imageVerticalList[k].id!!)
+            imageTmp.verticale = false
+            imageTmp.listaTag =
+                accorpaTagImmaginiVerticali(imageVerticalList[0].listaTag!!, imageVerticalList[k].listaTag!!)
+            imageTmp.numeroTag = imageTmp.listaTag!!.size
+            imageVerticalList.remove(imageVerticalList[k])
+            imageVerticalList.remove(imageVerticalList[0])
+            newImageListFromVertical.add(imageTmp)
         }
+
+        newImageListFromVertical.sortBy { it.numeroTag }
         return newImageListFromVertical
     }
 
     fun slideMigliorePossibile(imageVerticalList: MutableList<Immagine>, indextToNotCheck: Int): Slide {
         val singleSlideShow = SlideShow()
-        var indiceDaUsare = 0
         var immagineDaComparare = Immagine()
         var maxValue = 0
         val listaPossibileNewSlide: MutableList<Triple<Int, Int, Int>> = mutableListOf()
-        if (indextToNotCheck != 0) {
-            immagineDaComparare = imageVerticalList[indextToNotCheck]
-        } else {
-            immagineDaComparare = imageVerticalList[indextToNotCheck]
-        }
+        immagineDaComparare = imageVerticalList[indextToNotCheck]
+        var listaTag = immagineDaComparare.numeroTag!!
         imageVerticalList.remove(immagineDaComparare)
+        var indiceDaUsare = 0
 
         imageVerticalList.forEach {
             listaPossibileNewSlide.add(findDupes(immagineDaComparare.listaTag!!, it.listaTag!!))
         }
 
+        listaPossibileNewSlide.sortBy { it.first }
+
         listaPossibileNewSlide.forEachIndexed { index, triple ->
             val minValue = triple.toList().min()!!
+            val listaTagValue = triple.third
             if (minValue > maxValue) {
+                listaTag = listaTagValue
                 maxValue = minValue
                 indiceDaUsare = index
             }
+
         }
         singleSlideShow.coppiaImmagini = Pair(immagineDaComparare, imageVerticalList[indiceDaUsare])
         singleSlideShow.puntiInteresse = maxValue
@@ -114,9 +102,9 @@ class LogicaAccorpamento {
             }
 
             // Scommenta per un debug migliore
-            //      if (singleSlide.coppiaImmagini != null) {
-            //  println("Coppia numero: " + i + "    " + singleSlide.coppiaImmagini + "  +  punti interesse:  " + singleSlide.puntiInteresse)
-            //    }
+            if (singleSlide.coppiaImmagini != null) {
+                //     println("Coppia numero: " + i + "    " + singleSlide.coppiaImmagini + "  +  punti interesse:  " + singleSlide.puntiInteresse)
+            }
         }
 
         arrayImmaginiOrdinato.clear()

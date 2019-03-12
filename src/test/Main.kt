@@ -39,9 +39,7 @@ fun main() {
 
     val listaMiglioreCoppiaVerticalePossibile = arrayListOf<MutableList<Immagine>>()
     listaImmaginiSoloOrrizontali.forEachIndexed { index, mutableList ->
-        // if (index == 1 || index == 2 || index == 3) {
         listaMiglioreCoppiaVerticalePossibile += logicaAccorpamento.miglioreCoppiaPossibile(mutableList)
-        // }
     }
 
     val listaOrdinataConCoppiaDaVerticale = arrayListOf<MutableList<Immagine>>()
